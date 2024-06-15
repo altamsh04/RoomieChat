@@ -1,6 +1,6 @@
-# RoomiChat
+# RoomieChat
 
-RoomiChat is a simple chat application built using Android, Firebase, and Java. It allows users to join chat rooms, send and receive messages in real-time, and manage their chat room participation.
+RoomieChat is a simple chat application built using Android, Firebase, and Java. It allows users to join chat rooms, send and receive messages in real-time, and manage their chat room participation.
 
 ## Features
 
@@ -16,8 +16,8 @@ RoomiChat is a simple chat application built using Android, Firebase, and Java. 
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/altamsh04/RoomiChat.git
-    cd RoomiChat
+    git clone https://github.com/altamsh04/RoomieChat.git
+    cd RoomieChat
     ```
 
 2. **Open the project in Android Studio:**
@@ -48,7 +48,6 @@ RoomiChat is a simple chat application built using Android, Firebase, and Java. 
 
 4. **Manage Users:**
     - {Added soon}.
-    - 
 
 ## License
 
