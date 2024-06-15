@@ -23,7 +23,7 @@ RoomieChat is a simple chat application built using Android, Firebase, and Java.
 2. **Open the project in Android Studio:**
     - Open Android Studio.
     - Click on "Open an existing Android Studio project".
-    - Select the `RoomiChat` directory.
+    - Select the `RoomieChat` directory.
 
 3. **Set up Firebase:**
     - Go to the [Firebase Console](https://console.firebase.google.com/).
