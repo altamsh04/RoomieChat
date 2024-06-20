@@ -4,17 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000"
     tools:context=".OptionsActivity">
 
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        android:fontFamily="@font/averia_libre"
+        android:gravity="center"
+        android:layout_marginBottom="100dp"
+        android:layout_above="@+id/createRoom"
+        android:text="RoomieChat"/>
+
     <Button
         android:id="@+id/createRoom"
         android:layout_width="200dp"
         android:layout_height="58dp"
         android:layout_centerInParent="true"
+        android:backgroundTint="#FFC105"
+        android:fontFamily="@font/averia_libre"
         android:text="Create Room"
         android:textAllCaps="false" />
 
@@ -23,8 +39,21 @@
         android:layout_width="200dp"
         android:layout_height="58dp"
         android:layout_below="@+id/createRoom"
+        android:fontFamily="@font/averia_libre"
         android:layout_centerInParent="true"
+        android:backgroundTint="#FFC105"
         android:text="Join Room"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/joinRandomRoom"
+        android:layout_width="200dp"
+        android:layout_height="58dp"
+        android:layout_below="@+id/joinRoom"
+        android:fontFamily="@font/averia_libre"
+        android:layout_centerInParent="true"
+        android:backgroundTint="#FFC105"
+        android:text="Random Room"
         android:textAllCaps="false" />
 </RelativeLayout>
 
