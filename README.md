@@ -9,7 +9,7 @@ RoomieChat is a simple chat room application built using Android, Firebase, and 
 - **Chat Rooms**: Create and join chat rooms.
 - **Timestamp**: Display message timestamps.
 - **User Management**: {Added soon}.
-- **User Authentication**: {Added soon}.
+- **User Authentication**: Users can create accounts and login in with credentials.
 
 ## Screenshots {Under building}
 
@@ -39,7 +39,7 @@ RoomieChat is a simple chat room application built using Android, Firebase, and 
 ## Usage
 
 1. **Sign Up / Login:**
-    - {Added soon}.
+    - Enter credentials for login or signup purpose.
 
 2. **Join a Chat Room:**
     - Enter a room ID to join an existing chat room or create a new one.
