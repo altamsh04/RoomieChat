@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".SignUpActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,11 +15,6 @@
         android:backgroundTint="@color/black"
         android:padding="8dp"
         android:gravity="center">
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/logo"/>
 
         <LinearLayout
             android:layout_marginTop="30dp"
@@ -34,11 +29,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Login"
+                android:text="Create account"
+                android:gravity="center"
                 android:fontFamily="@font/averia_libre"
                 android:textColor="@color/white"
                 android:textSize="40sp"
                 android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/editTextUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Username"
+                android:singleLine="true"
+                android:inputType="text"
+                android:padding="12dp"
+                android:fontFamily="@font/averia_libre"
+                android:layout_margin="12dp"
+                android:drawableLeft="@drawable/baseline_person_24"
+                android:background="@drawable/edittext_background"
+                android:textSize="20sp"/>
 
             <EditText
                 android:id="@+id/editTextEmail"
@@ -69,10 +79,10 @@
                 android:textSize="20sp"/>
 
             <Button
-                android:id="@+id/loginIntoApplication"
+                android:id="@+id/buttonSignUp"
                 android:layout_width="300dp"
                 android:layout_height="70dp"
-                android:text="Login"
+                android:text="Sign Up"
                 android:textSize="18sp"
                 android:fontFamily="@font/averia_libre"
                 android:textColor="@color/white"
@@ -81,10 +91,10 @@
                 android:layout_marginTop="28dp"/>
 
             <TextView
-                android:id="@+id/createAccount"
+                android:id="@+id/loginToAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Don't have an account?"
+                android:text="Already have an account?"
                 android:textStyle="bold"
                 android:layout_gravity="center"
                 android:gravity="center"
