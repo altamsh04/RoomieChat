@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:background="@color/white"
         android:layout_gravity="center"
-        android:backgroundTint="@color/black"
+        android:backgroundTint="@color/white"
         android:padding="8dp"
         android:gravity="center">
 
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_gravity="center"
-            android:background="@color/black"
+            android:background="@color/white"
             android:gravity="center">
 
             <TextView
@@ -31,8 +31,8 @@
                 android:layout_margin="10dp"
                 android:text="Create account"
                 android:gravity="center"
-                android:fontFamily="@font/averia_libre"
-                android:textColor="@color/white"
+                android:fontFamily="@font/nunito_bold"
+                android:textColor="@color/black"
                 android:textSize="40sp"
                 android:textStyle="bold" />
 
@@ -40,15 +40,15 @@
                 android:id="@+id/editTextUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:background="@drawable/edittext_background"
+                android:drawableLeft="@drawable/baseline_person_24"
+                android:fontFamily="@font/nunito_semibold"
                 android:hint="Username"
-                android:singleLine="true"
                 android:inputType="text"
                 android:padding="12dp"
-                android:fontFamily="@font/averia_libre"
-                android:layout_margin="12dp"
-                android:drawableLeft="@drawable/baseline_person_24"
-                android:background="@drawable/edittext_background"
-                android:textSize="20sp"/>
+                android:singleLine="true"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/editTextEmail"
@@ -58,17 +58,17 @@
                 android:singleLine="true"
                 android:inputType="textEmailAddress"
                 android:padding="12dp"
-                android:fontFamily="@font/averia_libre"
+                android:fontFamily="@font/nunito_semibold"
                 android:layout_margin="12dp"
                 android:drawableLeft="@drawable/baseline_email_24"
                 android:background="@drawable/edittext_background"
-                android:textSize="20sp"/>
+                android:textSize="16sp"/>
 
             <EditText
                 android:id="@+id/editTextPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/averia_libre"
+                android:fontFamily="@font/nunito_semibold"
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:singleLine="true"
@@ -76,15 +76,15 @@
                 android:layout_margin="12dp"
                 android:drawableLeft="@drawable/baseline_lock_24"
                 android:background="@drawable/edittext_background"
-                android:textSize="20sp"/>
+                android:textSize="16sp"/>
 
             <Button
                 android:id="@+id/buttonSignUp"
                 android:layout_width="300dp"
                 android:layout_height="70dp"
                 android:text="Sign Up"
-                android:textSize="18sp"
-                android:fontFamily="@font/averia_libre"
+                android:textSize="16sp"
+                android:fontFamily="@font/nunito_semibold"
                 android:textColor="@color/white"
                 android:layout_margin="8dp"
                 android:backgroundTint="#FFC105"
@@ -99,9 +99,9 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:textAlignment="gravity"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:padding="8dp"
-                android:fontFamily="@font/averia_libre"
+                android:fontFamily="@font/nunito_semibold"
                 android:textColor="#FFC105"
                 android:layout_marginTop="30dp"/>
         </LinearLayout>
