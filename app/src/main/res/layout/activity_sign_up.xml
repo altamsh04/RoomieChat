@@ -17,21 +17,21 @@
         android:gravity="center">
 
         <LinearLayout
-            android:layout_marginTop="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_gravity="center"
+            android:layout_marginTop="30dp"
             android:background="@color/white"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Create account"
-                android:gravity="center"
                 android:fontFamily="@font/nunito_bold"
+                android:gravity="center"
+                android:text="Create account"
                 android:textColor="@color/black"
                 android:textSize="40sp"
                 android:textStyle="bold" />
@@ -43,10 +43,11 @@
                 android:layout_margin="12dp"
                 android:background="@drawable/edittext_background"
                 android:drawableLeft="@drawable/baseline_person_24"
+                android:drawablePadding="4dp"
                 android:fontFamily="@font/nunito_semibold"
                 android:hint="Username"
                 android:inputType="text"
-                android:padding="12dp"
+                android:padding="14dp"
                 android:singleLine="true"
                 android:textSize="16sp" />
 
@@ -54,56 +55,58 @@
                 android:id="@+id/editTextEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
-                android:singleLine="true"
-                android:inputType="textEmailAddress"
-                android:padding="12dp"
-                android:fontFamily="@font/nunito_semibold"
                 android:layout_margin="12dp"
-                android:drawableLeft="@drawable/baseline_email_24"
                 android:background="@drawable/edittext_background"
-                android:textSize="16sp"/>
+                android:drawableLeft="@drawable/baseline_email_24"
+                android:drawablePadding="4dp"
+                android:fontFamily="@font/nunito_semibold"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:padding="14dp"
+                android:singleLine="true"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/editTextPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:background="@drawable/edittext_background"
+                android:drawableLeft="@drawable/baseline_lock_24"
+                android:drawablePadding="4dp"
                 android:fontFamily="@font/nunito_semibold"
                 android:hint="Password"
                 android:inputType="textPassword"
+                android:padding="14dp"
                 android:singleLine="true"
-                android:padding="12dp"
-                android:layout_margin="12dp"
-                android:drawableLeft="@drawable/baseline_lock_24"
-                android:background="@drawable/edittext_background"
-                android:textSize="16sp"/>
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/buttonSignUp"
                 android:layout_width="300dp"
                 android:layout_height="70dp"
-                android:text="Sign Up"
-                android:textSize="16sp"
-                android:fontFamily="@font/nunito_semibold"
-                android:textColor="@color/white"
                 android:layout_margin="8dp"
+                android:layout_marginTop="28dp"
                 android:backgroundTint="#FFC105"
-                android:layout_marginTop="28dp"/>
+                android:fontFamily="@font/nunito_bold"
+                android:text="Sign Up"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/loginToAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Already have an account?"
-                android:textStyle="bold"
                 android:layout_gravity="center"
-                android:gravity="center"
-                android:textAlignment="gravity"
-                android:textSize="16sp"
-                android:padding="8dp"
+                android:layout_marginTop="30dp"
                 android:fontFamily="@font/nunito_semibold"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="Already have an account?"
+                android:textAlignment="gravity"
                 android:textColor="#FFC105"
-                android:layout_marginTop="30dp"/>
+                android:textSize="16sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
     </LinearLayout>

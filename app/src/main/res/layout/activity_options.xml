@@ -46,15 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="16dp"
-            android:background="@drawable/edittext_background"
-            android:backgroundTint="#FFC105"
-            android:fontFamily="@font/nunito_bold"
             android:text="Create Room"
-            android:textAllCaps="false"
-            android:textSize="16sp" />
+            style="@style/CustomButtonStyle"/>
 
         <Button
             android:id="@+id/joinRoom"
@@ -62,13 +55,8 @@
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
-            android:layout_margin="16dp"
-            android:background="@drawable/edittext_background"
-            android:backgroundTint="#FFC105"
-            android:fontFamily="@font/nunito_bold"
             android:text="Join Room"
-            android:textAllCaps="false"
-            android:textSize="16sp" />
+            style="@style/CustomButtonStyle"/>
 
         <Button
             android:id="@+id/joinRandomRoom"
@@ -76,13 +64,8 @@
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
-            android:layout_margin="16dp"
-            android:background="@drawable/edittext_background"
-            android:backgroundTint="#FFC105"
-            android:fontFamily="@font/nunito_bold"
             android:text="Random Room"
-            android:textAllCaps="false"
-            android:textSize="16sp" />
+            style="@style/CustomButtonStyle"/>
 
         <Button
             android:id="@+id/searchFriends"
@@ -90,13 +73,8 @@
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
-            android:layout_margin="16dp"
-            android:background="@drawable/edittext_background"
-            android:backgroundTint="#FFC105"
-            android:fontFamily="@font/nunito_bold"
             android:text="Search Friends"
-            android:textAllCaps="false"
-            android:textSize="16sp" />
+            style="@style/CustomButtonStyle"/>
     </GridLayout>
 
     <ImageView
