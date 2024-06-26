@@ -3,18 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#FFC105"
     android:padding="24dp">
 
-    <EditText
+<EditText
         android:id="@+id/roomCodeEditText"
+        android:background="@drawable/edittext_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Room Code" />
-
-    <EditText
-        android:id="@+id/usernameEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Username" />
-
+        android:hint="Room Code"
+        android:padding="14dp"
+        android:fontFamily="@font/nunito_semibold"
+        android:layout_marginTop="16dp"
+        android:inputType="text" />
 </LinearLayout>
