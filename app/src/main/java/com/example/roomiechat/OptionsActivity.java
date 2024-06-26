@@ -3,12 +3,15 @@ package com.example.roomiechat;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +33,8 @@ import java.util.UUID;
 
 public class OptionsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private Switch roomPrivacySwitch;
+    private String roomPrivacy = "Private";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +69,36 @@ public class OptionsActivity extends AppCompatActivity {
         TextView roomNumberTextView = popupView.findViewById(R.id.roomNumberTextView);
         roomNumberTextView.setText(String.valueOf(roomNumber));
 
-        final EditText usernameEditText = popupView.findViewById(R.id.usernameEditText);
+        roomPrivacySwitch = popupView.findViewById(R.id.roomPrivacySwitch);
+        roomPrivacySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                updateSwitchText(isChecked);
+            }
+        });
+
+        final EditText usernameEditText = popupView.findViewById(R.id.roomNameEditText);
 
         AlertDialog.Builder createBuilder = new AlertDialog.Builder(this);
         createBuilder.setView(popupView)
                 .setPositiveButton("Join", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        String username = usernameEditText.getText().toString().trim();
-                        if (!username.isEmpty()) {
-                            checkAndCreateRoom(roomNumber, username);
+                        String roomName = usernameEditText.getText().toString().trim();
+
+                        if (!roomName.isEmpty()) {
+                            getUsernameFromDatabase(new Utils.UsernameCallback() {
+                                @Override
+                                public void onCallback(String username) {
+                                    if (username != null) {
+                                        Log.d("USERNAME", "Fetched Username: " + username);
+                                        displayUsername(username);
+                                    } else {
+                                        Log.d("USERNAME", "Username not found");
+                                    }
+                                }
+                            });
+
+                            checkAndCreateRoom(roomNumber, roomName);
                         } else {
                             usernameEditText.setError("Username is required");
                         }
@@ -87,62 +113,99 @@ public class OptionsActivity extends AppCompatActivity {
         createBuilder.create().show();
     }
 
-    private void showJoinRoomPopup() {
-        LayoutInflater inflater = getLayoutInflater();
-        View popupView = inflater.inflate(R.layout.popup_join_room, null);
-
-        final EditText roomCodeEditText = popupView.findViewById(R.id.roomCodeEditText);
-        final EditText usernameEditText = popupView.findViewById(R.id.usernameEditText);
-
-        AlertDialog.Builder joinBuilder = new AlertDialog.Builder(this);
-        joinBuilder.setView(popupView)
-                .setPositiveButton("Join", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        String roomCode = roomCodeEditText.getText().toString().trim();
-                        String username = usernameEditText.getText().toString().trim();
-                        if (!roomCode.isEmpty() && !username.isEmpty()) {
-                            checkAndJoinRoom(roomCode, username);
-                        } else {
-                            if (roomCode.isEmpty()) {
-                                roomCodeEditText.setError("Room Code is required");
-                            }
-                            if (username.isEmpty()) {
-                                usernameEditText.setError("Username is required");
-                            }
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-
-        joinBuilder.create().show();
+    private void getUsernameFromDatabase(Utils.UsernameCallback callback) {
+        String uid = Utils.getUidFromSharedPreferences(OptionsActivity.this);
+        Log.d("USER_ID", uid);
+        if (uid != null) {
+            Utils.fetchUsernameFromFirestore(uid, callback);
+        } else {
+            callback.onCallback(null);
+        }
     }
 
-    private void checkAndCreateRoom(final int roomNumber, final String username) {
+    private void displayUsername(String username) {
+        Log.d("USERNAME", username);
+    }
+
+    private void updateSwitchText(boolean isPrivate) {
+        if (isPrivate) {
+            roomPrivacySwitch.setText("Private");
+            roomPrivacySwitch.setTextColor(Color.parseColor("#FF1010"));
+            roomPrivacy = "Private";
+        } else {
+            roomPrivacySwitch.setText("Public");
+            roomPrivacySwitch.setTextColor(Color.parseColor("#23BC00"));
+            roomPrivacy = "Public";
+        }
+    }
+
+    private void showJoinRoomPopup() {
+        getUsernameFromDatabase(new Utils.UsernameCallback() {
+            @Override
+            public void onCallback(final String username) {
+                if (username != null) {
+                    LayoutInflater inflater = getLayoutInflater();
+                    View popupView = inflater.inflate(R.layout.popup_join_room, null);
+
+                    final EditText roomCodeEditText = popupView.findViewById(R.id.roomCodeEditText);
+
+                    AlertDialog.Builder joinBuilder = new AlertDialog.Builder(OptionsActivity.this);
+                    joinBuilder.setView(popupView)
+                            .setPositiveButton("Join", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    String roomCode = roomCodeEditText.getText().toString().trim();
+                                    if (!roomCode.isEmpty()) {
+                                        checkAndJoinRoom(roomCode, username);
+                                    } else {
+                                        roomCodeEditText.setError("Room Code is required");
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                    joinBuilder.create().show();
+                } else {
+                    Log.d("USERNAME", "Username not found");
+                }
+            }
+        });
+    }
+
+    private void checkAndCreateRoom(final int roomNumber, final String roomName) {
         final String roomNumberStr = String.valueOf(roomNumber);
 
-        db.collection("rooms").document(roomNumberStr).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                // Room already exists, proceed to join
-                                String userId = UUID.randomUUID().toString();
-                                joinRoom(roomNumberStr, userId, username);
-                            } else {
-                                // Room does not exist, create a new one
-                                createRoom(roomNumberStr, username);
-                            }
-                        } else {
-                            Log.w("CheckRoom", "Error checking document", task.getException());
-                        }
-                    }
-                });
+        getUsernameFromDatabase(new Utils.UsernameCallback() {
+            @Override
+            public void onCallback(final String username) {
+                if (username != null) {
+                    db.collection("rooms").document(roomNumberStr).get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+                                            // Room already exists, proceed to join
+                                            String userId = UUID.randomUUID().toString();
+                                            joinRoom(roomNumberStr, userId, username);
+                                        } else {
+                                            // Room does not exist, create a new one
+                                            createRoom(roomNumberStr, roomName);
+                                        }
+                                    } else {
+                                        Log.w("CheckRoom", "Error checking document", task.getException());
+                                    }
+                                }
+                            });
+                } else {
+                    Log.d("USERNAME", "Username not found");
+                }
+            }
+        });
     }
 
     private void checkAndJoinRoom(final String roomCode, final String username) {
@@ -153,8 +216,13 @@ public class OptionsActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-                                // Room exists, add user to the room
-                                addUserToRoom(roomCode, username);
+                                String roomPrivacy = document.getString("roomPrivacy");
+                                if ("Private".equals(roomPrivacy)) {
+                                    Toast.makeText(OptionsActivity.this, "This room is private. You cannot join.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // Room exists and is not private, add user to the room
+                                    addUserToRoom(roomCode);
+                                }
                             } else {
                                 // Room does not exist, show a toast message
                                 Toast.makeText(OptionsActivity.this, "Invalid Room Code", Toast.LENGTH_SHORT).show();
@@ -166,9 +234,14 @@ public class OptionsActivity extends AppCompatActivity {
                 });
     }
 
-    private void createRoom(final String roomNumberStr, final String username) {
+
+
+    private void createRoom(final String roomNumberStr, final String roomName) {
         Map<String, Object> room = new HashMap<>();
+        room.put("adminId", Utils.getUidFromSharedPreferences(OptionsActivity.this));
         room.put("roomId", roomNumberStr);
+        room.put("roomName", roomName);
+        room.put("roomPrivacy", roomPrivacy);
         room.put("createdAt", FieldValue.serverTimestamp());
 
         db.collection("rooms").document(roomNumberStr)
@@ -176,7 +249,7 @@ public class OptionsActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        addUserToRoom(roomNumberStr, username);
+                        addUserToRoom(roomNumberStr);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -187,35 +260,44 @@ public class OptionsActivity extends AppCompatActivity {
                 });
     }
 
-    private void addUserToRoom(String roomNumberStr, String username) {
-        String userId = UUID.randomUUID().toString();
+    private void addUserToRoom(String roomNumberStr) {
+        getUsernameFromDatabase(new Utils.UsernameCallback() {
+            @Override
+            public void onCallback(String username) {
+                if (username != null) {
+                    String uniqueUserId = UUID.randomUUID().toString();
 
-        Map<String, Object> user = new HashMap<>();
-        user.put("username", username);
-        user.put("joinedAt", FieldValue.serverTimestamp());
+                    Map<String, Object> user = new HashMap<>();
+                    user.put("username", username);
+                    user.put("joinedAt", FieldValue.serverTimestamp());
 
-        db.collection("rooms").document(roomNumberStr)
-                .collection("users")
-                .document(userId)
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        joinRoom(roomNumberStr, userId, username);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("AddUserToRoom", "Error adding user document", e);
-                    }
-                });
+                    db.collection("rooms").document(roomNumberStr)
+                            .collection("users")
+                            .document(uniqueUserId)
+                            .set(user)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    joinRoom(roomNumberStr, uniqueUserId, username);
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("AddUserToRoom", "Error adding user document", e);
+                                }
+                            });
+                } else {
+                    Log.d("USERNAME", "Failed to fetch username");
+                }
+            }
+        });
     }
 
-    private void joinRoom(String roomNumberStr, String userId, String username) {
+    private void joinRoom(String roomNumberStr, String uniqueUserId, String username) {
         Intent intent = new Intent(OptionsActivity.this, HomeActivity.class);
         intent.putExtra("ROOM_ID", roomNumberStr);
-        intent.putExtra("USER_ID", userId);
+        intent.putExtra("USER_ID", uniqueUserId);
         intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
