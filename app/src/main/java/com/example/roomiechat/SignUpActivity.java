@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -65,17 +65,17 @@ public class SignUpActivity extends AppCompatActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(username)) {
-            editTextUsername.setError("Username");
+            editTextUsername.setError("Username is required");
             return;
         }
 
         if (TextUtils.isEmpty(email)) {
-            editTextUsername.setError("Email");
+            editTextEmail.setError("Email is required");
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            editTextUsername.setError("Password");
+            editTextPassword.setError("Password is required");
             return;
         }
 
@@ -83,18 +83,15 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void checkUsernameExists(final String username, final String email, final String password) {
-        db.collection("users").document(username).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    Toast.makeText(SignUpActivity.this, "Username already exists", Toast.LENGTH_SHORT).show();
-                } else {
-                    createUser(email, password, username);
-                }
-            } else {
-                Log.d("AUTH_ALREADY", task.getException().getMessage());
-            }
-        });
+        db.collection("users").whereEqualTo("username", username).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult().isEmpty()) {
+                        createUser(email, password, username);
+                    } else {
+                        Toast.makeText(SignUpActivity.this, "Username already exists", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Log.d("CHECK_USERNAME_ERROR", e.getMessage()));
     }
 
     private void createUser(String email, String password, String username) {
@@ -114,17 +111,16 @@ public class SignUpActivity extends AppCompatActivity {
     private void saveUserToFirestore(String userId, String username, String email) {
         Map<String, Object> user = new HashMap<>();
         user.put("username", username);
+        user.put("createdAt", FieldValue.serverTimestamp());
         user.put("email", email);
 
-        db.collection("users").document(username)
+        db.collection("users").document(userId)
                 .set(user)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("SIGNUP_SUCCESS","Account created successfully");
                     startActivity(new Intent(SignUpActivity.this, MainActivity.class));
                     finish();
                 })
-                .addOnFailureListener(e -> {
-                    Log.d("SIGNUP_ERROR", e.getMessage());
-                });
+                .addOnFailureListener(e -> Log.d("SIGNUP_ERROR", e.getMessage()));
     }
 }
