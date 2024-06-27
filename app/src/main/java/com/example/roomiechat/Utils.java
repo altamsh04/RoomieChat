@@ -39,7 +39,37 @@ public class Utils {
                 });
     }
 
+    public static void fetchUserDetailsFromFirestore(String uid, final UserDetailsCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            String username = documentSnapshot.getString("username");
+                            String email = documentSnapshot.getString("email");
+                            String bio = documentSnapshot.getString("bio");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+                            callback.onCallback(username, email, bio, profileImageUrl);
+                        } else {
+                            Log.d("FETCH_USER_DETAILS", "No such document");
+                            callback.onCallback(null, null, null, null);
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d("FETCH_USER_DETAILS", "Failed with: ", e);
+                        callback.onCallback(null, null, null, null);
+                    }
+                });
+    }
+
     public interface UsernameCallback {
         void onCallback(String username);
+    }
+
+    public interface UserDetailsCallback {
+        void onCallback(String username, String email, String bio, String profileImage);
     }
 }

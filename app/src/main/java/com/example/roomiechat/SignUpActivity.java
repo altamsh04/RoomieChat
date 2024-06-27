@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -104,15 +105,23 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                     } else {
                         Log.d("AUTH_ERROR", task.getException().getMessage());
+                        Exception e = task.getException();
+                        if (e instanceof FirebaseAuthUserCollisionException) {
+                            Toast.makeText(SignUpActivity.this, "Email already in use", Toast.LENGTH_SHORT).show();
+                            Log.d("AUTH_ERROR", e.getMessage());
+                        }
                     }
                 });
     }
 
     private void saveUserToFirestore(String userId, String username, String email) {
+        String bio = username+"'s Bio";
         Map<String, Object> user = new HashMap<>();
         user.put("username", username);
-        user.put("createdAt", FieldValue.serverTimestamp());
         user.put("email", email);
+        user.put("bio", bio);
+        user.put("profileImageUrl", null);
+        user.put("createdAt", FieldValue.serverTimestamp());
 
         db.collection("users").document(userId)
                 .set(user)

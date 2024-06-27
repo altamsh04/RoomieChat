@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences sharedPreferences = getSharedPreferences("RoomieChatPrefs", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean("isLoggedIn", true);
-            editor.putString("uid", q); // Save the UID
+            editor.putString("uid", uid); // Save the UID
             editor.apply();
         }
     }

@@ -58,6 +58,14 @@ public class OptionsActivity extends AppCompatActivity {
                 showJoinRoomPopup();
             }
         });
+
+        Button profileButton = findViewById(R.id.profile);
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(OptionsActivity.this, ProfileActivity.class));
+            }
+        });
     }
 
     private void showCreateRoomPopup() {
