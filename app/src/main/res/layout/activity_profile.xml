@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="#DDDDDD"
+    tools:context=".ProfileActivity">
+
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profileImage"
+        android:layout_width="86dp"
+        android:layout_height="86dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:padding="4dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/profile"
+        app:shapeAppearanceOverlay="@style/circleImageView" />
+
+    <LinearLayout
+        android:id="@+id/userInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/profileImage"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@id/profileImage"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nunito_bold"
+            android:padding="2dp"
+            android:text="Username"
+            android:textColor="@color/black"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textViewEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nunito_semibold"
+            android:padding="2dp"
+            android:text="Email"
+            android:textColor="#7A7A7A"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/textViewBio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nunito_semibold"
+            android:padding="2dp"
+            android:layout_marginTop="8dp"
+            android:text="Bio"
+            android:textColor="#525252"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/cornerback"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="14dp"
+        android:layout_below="@+id/userInfoLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/cornerback"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/editProfile"
+                style="@style/ProfileButtonStyle"
+                android:drawableLeft="@drawable/baseline_edit_24"
+                android:text="Edit Profile" />
+
+            <Button
+                style="@style/ProfileButtonStyle"
+                android:drawableLeft="@drawable/outline_wb_sunny_24"
+                android:text="Change Theme" />
+
+            <Button
+                style="@style/ProfileButtonStyle"
+                android:drawableLeft="@drawable/baseline_computer_24"
+                android:text="About Developer" />
+
+            <Button
+                android:id="@+id/logoutButton"
+                style="@style/ProfileButtonStyle"
+                android:drawableLeft="@drawable/baseline_logout_24"
+                android:text="Logout" />
+
+            <Button
+                style="@style/ProfileButtonStyle"
+                android:drawableLeft="@drawable/baseline_delete_24"
+                android:text="Delete Account" />
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/appVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito_semibold"
+        android:padding="2dp"
+        android:text="RoomieChat V 1.0"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:textColor="#8A8484"
+        android:textSize="14sp" />
+
+</RelativeLayout>
