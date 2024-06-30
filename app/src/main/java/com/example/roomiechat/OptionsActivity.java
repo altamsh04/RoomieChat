@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,15 +20,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -36,12 +43,27 @@ public class OptionsActivity extends AppCompatActivity {
     private Switch roomPrivacySwitch;
     private String roomPrivacy = "Private";
 
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+
+    private Uri imageUri;
+    private String uidForProfile;
+
+    private ImageView imageViewProfile;
+    private FirestoreHelper firestoreHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options);
 
         db = FirebaseFirestore.getInstance();
+        firestoreHelper = new FirestoreHelper();
+        uidForProfile = Utils.getUidFromSharedPreferences(this);
+
+        imageViewProfile = findViewById(R.id.profile);
+
+        fetchProfileData();
 
         Button createRoomButton = findViewById(R.id.createRoom);
         createRoomButton.setOnClickListener(new View.OnClickListener() {
@@ -59,13 +81,41 @@ public class OptionsActivity extends AppCompatActivity {
             }
         });
 
-        Button profileButton = findViewById(R.id.profile);
-        profileButton.setOnClickListener(new View.OnClickListener() {
+        imageViewProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(OptionsActivity.this, ProfileActivity.class));
             }
         });
+    }
+
+    private void fetchProfileData() {
+        if (uidForProfile != null) {
+            DocumentReference userRef = db.collection("users").document(uidForProfile);
+            userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            String profileImageUrl = document.getString("profileImageUrl");
+                            if (profileImageUrl != null) {
+                                Glide.with(OptionsActivity.this)
+                                        .load(profileImageUrl)
+                                        .placeholder(R.drawable.profile) // Add a placeholder image
+                                        .into(imageViewProfile);
+                            } else {
+                                imageViewProfile.setImageResource(R.drawable.profile); // Set placeholder if no URL found
+                            }
+                        } else {
+                            Toast.makeText(OptionsActivity.this, "No profile data found", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(OptionsActivity.this, "Failed to fetch profile data", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
     private void showCreateRoomPopup() {
@@ -156,6 +206,13 @@ public class OptionsActivity extends AppCompatActivity {
                     View popupView = inflater.inflate(R.layout.popup_join_room, null);
 
                     final EditText roomCodeEditText = popupView.findViewById(R.id.roomCodeEditText);
+                    final Button joinRandomRoom = popupView.findViewById(R.id.joinRandomRoom);
+                    joinRandomRoom.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            joinRandomPublicRoom(username);
+                        }
+                    });
 
                     AlertDialog.Builder joinBuilder = new AlertDialog.Builder(OptionsActivity.this);
                     joinBuilder.setView(popupView)
@@ -178,6 +235,23 @@ public class OptionsActivity extends AppCompatActivity {
                     joinBuilder.create().show();
                 } else {
                     Log.d("USERNAME", "Username not found");
+                }
+            }
+        });
+    }
+
+    private void joinRandomPublicRoom(final String username) {
+        firestoreHelper.fetchPublicRoomIds(new FirestoreHelper.FirestoreCallback() {
+            @Override
+            public void onCallback(List<String> roomIds) {
+                if (!roomIds.isEmpty()) {
+                    // Get a random room ID from the list
+                    String randomRoomId = roomIds.get(new Random().nextInt(roomIds.size()));
+                    // Add the user to the randomly selected room
+                    Log.d("RANDOM_ROOM_ID", randomRoomId);
+                    addUserToRoom(randomRoomId);
+                } else {
+                    Toast.makeText(OptionsActivity.this, "No public rooms available to join.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -242,8 +316,6 @@ public class OptionsActivity extends AppCompatActivity {
                 });
     }
 
-
-
     private void createRoom(final String roomNumberStr, final String roomName) {
         Map<String, Object> room = new HashMap<>();
         room.put("adminId", Utils.getUidFromSharedPreferences(OptionsActivity.this));
@@ -268,7 +340,7 @@ public class OptionsActivity extends AppCompatActivity {
                 });
     }
 
-    private void addUserToRoom(String roomNumberStr) {
+    private void addUserToRoom(final String roomNumberStr) {
         getUsernameFromDatabase(new Utils.UsernameCallback() {
             @Override
             public void onCallback(String username) {
