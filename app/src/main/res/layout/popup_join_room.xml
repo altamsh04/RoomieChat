@@ -2,18 +2,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFC105"
+    android:orientation="horizontal"
+    android:background="#FFD552"
     android:padding="24dp">
 
-<EditText
+    <EditText
         android:id="@+id/roomCodeEditText"
         android:background="@drawable/edittext_background"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:hint="Room Code"
         android:padding="14dp"
         android:fontFamily="@font/nunito_semibold"
         android:layout_marginTop="16dp"
-        android:inputType="text" />
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/joinRandomRoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edittext_background"
+        android:fontFamily="@font/nunito_bold"
+        android:padding="14dp"
+        android:text="🎲"
+        android:textSize="18sp"
+        android:textAllCaps="false" />
+
 </LinearLayout>
