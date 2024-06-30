@@ -15,7 +15,7 @@ import com.bumptech.glide.Glide;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private TextView textViewUsername, textViewEmail, textViewBio;
+    private TextView textViewUsername, textViewEmail, textViewBio, settingsTextView;
     private ImageView imageViewProfileImage;
 
     @Override
@@ -27,6 +27,14 @@ public class ProfileActivity extends AppCompatActivity {
         textViewEmail = findViewById(R.id.textViewEmail);
         textViewBio = findViewById(R.id.textViewBio);
         imageViewProfileImage = findViewById(R.id.profileImage);
+        settingsTextView = findViewById(R.id.settingsTextView);
+
+        settingsTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
         fetchUserDetails();
 
