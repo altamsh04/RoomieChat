@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,6 +39,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private ImageView imageViewProfile;
+    private TextView editProfileTextView;
     private EditText editTextUsername, editTextBio;
     private Button buttonUploadDP, buttonUpdate, buttonCancel;
 
@@ -60,6 +62,7 @@ public class EditProfileActivity extends AppCompatActivity {
         buttonUpdate = findViewById(R.id.buttonUpdate);
         buttonCancel = findViewById(R.id.buttonCancel);
         progressBar = findViewById(R.id.progressBar);
+        editProfileTextView = findViewById(R.id.editProfileTextView);
 
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -68,6 +71,13 @@ public class EditProfileActivity extends AppCompatActivity {
 
         // Fetch existing profile data
         fetchProfileData();
+
+        editProfileTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
         imageViewProfile.setOnClickListener(new View.OnClickListener() {
             @Override
