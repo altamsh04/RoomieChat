@@ -62,16 +62,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/frameLayoutForEdit"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/edittext_background"
         android:drawableLeft="@drawable/baseline_person_24"
         android:drawablePadding="4dp"
         android:fontFamily="@font/nunito_semibold"
+        android:hint="Username"
+        android:inputType="textAutoComplete"
         android:padding="14dp"
         android:singleLine="true"
-        android:textSize="16sp"
-        android:hint="Username"
-        android:inputType="textAutoComplete" />
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/editTextBio"
