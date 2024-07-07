@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -52,6 +53,8 @@ public class OptionsActivity extends AppCompatActivity {
     private ImageView imageViewProfile;
     private FirestoreHelper firestoreHelper;
 
+    private FloatingActionButton fabSearch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,8 +63,8 @@ public class OptionsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         firestoreHelper = new FirestoreHelper();
         uidForProfile = Utils.getUidFromSharedPreferences(this);
-
         imageViewProfile = findViewById(R.id.profile);
+        fabSearch = findViewById(R.id.fab_search);
 
         fetchProfileData();
 
@@ -85,6 +88,13 @@ public class OptionsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(OptionsActivity.this, ProfileActivity.class));
+            }
+        });
+
+        fabSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), SearchFriendsActivity.class));
             }
         });
     }
