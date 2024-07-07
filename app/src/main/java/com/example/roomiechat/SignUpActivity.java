@@ -117,6 +117,7 @@ public class SignUpActivity extends AppCompatActivity {
     private void saveUserToFirestore(String userId, String username, String email) {
         String bio = username+"'s Bio";
         Map<String, Object> user = new HashMap<>();
+        user.put("id", userId);
         user.put("username", username);
         user.put("email", email);
         user.put("bio", bio);
