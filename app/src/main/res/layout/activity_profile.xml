@@ -103,6 +103,12 @@
                 android:text="Edit Profile" />
 
             <Button
+                android:id="@+id/myFriends"
+                style="@style/ProfileButtonStyle"
+                android:drawableLeft="@drawable/baseline_people_24"
+                android:text="My Friends" />
+
+            <Button
                 style="@style/ProfileButtonStyle"
                 android:drawableLeft="@drawable/outline_wb_sunny_24"
                 android:text="Change Theme" />
