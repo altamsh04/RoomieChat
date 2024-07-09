@@ -54,6 +54,16 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        Button myFriends = findViewById(R.id.myFriends);
+        myFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), SearchFriendsActivity.class);
+                intent.putExtra("FETCH_MY_FRIENDS", true);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void openEditProfileActivity() {
