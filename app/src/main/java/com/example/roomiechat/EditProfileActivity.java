@@ -1,7 +1,9 @@
 package com.example.roomiechat;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.example.roomiechat.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,11 +38,15 @@ import com.google.firebase.storage.UploadTask;
 public class EditProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final String PREFS_NAME = "ProfilePrefs";
+    private static final String PREF_PROFILE_IMAGE = "profileImage";
+    private static final String PREF_USERNAME = "username";
+    private static final String PREF_BIO = "bio";
 
     private ImageView imageViewProfile;
     private TextView editProfileTextView;
     private EditText editTextUsername, editTextBio;
-    private Button buttonUploadDP, buttonUpdate, buttonCancel;
+    private Button buttonUpdate, buttonCancel;
 
     private FirebaseFirestore db;
     private FirebaseStorage storage;
@@ -50,6 +55,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private String currentUsername;
     private Uri imageUri;
     private ProgressBar progressBar;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,7 @@ public class EditProfileActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         uid = Utils.getUidFromSharedPreferences(this);
+        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         // Fetch existing profile data
         fetchProfileData();
@@ -102,48 +109,64 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void fetchProfileData() {
-        if (uid != null) {
-            DocumentReference userRef = db.collection("users").document(uid);
-            userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            currentUsername = document.getString("username");
-                            String bio = document.getString("bio");
-                            String profileImageUrl = document.getString("profileImageUrl");
+        String cachedProfileImage = sharedPreferences.getString(PREF_PROFILE_IMAGE, null);
+        String cachedUsername = sharedPreferences.getString(PREF_USERNAME, null);
+        String cachedBio = sharedPreferences.getString(PREF_BIO, null);
 
-                            if (currentUsername != null && bio != null) {
-                                editTextUsername.setText(currentUsername);
-                                editTextBio.setText(bio);
-                            }
-                            else {
-                                editTextUsername.setText("Username not found");
-                                editTextBio.setText("Bio not found");
-                            }
+        if (cachedProfileImage != null && cachedUsername != null && cachedBio != null) {
+            // Use cached data
+            Log.d("FETCH_DATA", "FETCHED_FROM_CACHE");
+            Glide.with(this).load(cachedProfileImage).into(imageViewProfile);
+            editTextUsername.setText(cachedUsername);
+            editTextBio.setText(cachedBio);
+            currentUsername = cachedUsername;
+        } else {
+            Log.d("FETCH_DATA", "FETCHED_FROM_DATABASE");
+            // Fetch from database and cache it
+            if (uid != null) {
+                DocumentReference userRef = db.collection("users").document(uid);
+                userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                currentUsername = document.getString("username");
+                                String bio = document.getString("bio");
+                                String profileImageUrl = document.getString("profileImageUrl");
 
+                                if (currentUsername != null && bio != null) {
+                                    editTextUsername.setText(currentUsername);
+                                    editTextBio.setText(bio);
+                                } else {
+                                    editTextUsername.setText("Username not found");
+                                    editTextBio.setText("Bio not found");
+                                }
 
-                            if (profileImageUrl != null) {
-                                Glide.with(EditProfileActivity.this)
-                                        .load(profileImageUrl)
-                                        .placeholder(R.drawable.profile) // Add a placeholder image
-                                        .into(imageViewProfile);
+                                if (profileImageUrl != null) {
+                                    Glide.with(EditProfileActivity.this)
+                                            .load(profileImageUrl)
+                                            .placeholder(R.drawable.profile) // Add a placeholder image
+                                            .into(imageViewProfile);
+
+                                    // Cache the data
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString(PREF_PROFILE_IMAGE, profileImageUrl);
+                                    editor.putString(PREF_USERNAME, currentUsername);
+                                    editor.putString(PREF_BIO, bio);
+                                    editor.apply();
+                                } else {
+                                    imageViewProfile.setImageResource(R.drawable.profile); // Set placeholder if no URL found
+                                }
                             } else {
-                                imageViewProfile.setImageResource(R.drawable.profile); // Set placeholder if no URL found
+                                Toast.makeText(EditProfileActivity.this, "No profile data found", Toast.LENGTH_SHORT).show();
                             }
-
-                            // Load the profile image using a library like Picasso or Glide
-                            // For example, using Glide:
-                            // Glide.with(EditProfileActivity.this).load(document.getString("profileImageUrl")).into(imageViewProfile);
                         } else {
-                            Toast.makeText(EditProfileActivity.this, "No profile data found", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditProfileActivity.this, "Failed to fetch profile data", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(EditProfileActivity.this, "Failed to fetch profile data", Toast.LENGTH_SHORT).show();
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -175,10 +198,8 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // If the new username is the same as the current username, update bio directly
-        if (newUsername.equals(currentUsername)) {
-            updateProfile(newUsername, newBio);
-        } else {
+        // Only check for existing username if it has been changed
+        if (!newUsername.equals(currentUsername)) {
             db.collection("users").whereEqualTo("username", newUsername).get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -191,6 +212,9 @@ public class EditProfileActivity extends AppCompatActivity {
                         }
                     })
                     .addOnFailureListener(e -> Log.d("CHECK_USERNAME_ERROR", e.getMessage()));
+        } else {
+            // Username hasn't changed, just update the profile
+            updateProfile(newUsername, newBio);
         }
     }
 
@@ -245,6 +269,13 @@ public class EditProfileActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                // Update SharedPreferences
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString(PREF_PROFILE_IMAGE, imageUrl);
+                                editor.putString(PREF_USERNAME, newUsername);
+                                editor.putString(PREF_BIO, newBio);
+                                editor.apply();
+
                                 Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(EditProfileActivity.this, ProfileActivity.class));
                                 finish(); // Close the activity after successful update
@@ -259,6 +290,12 @@ public class EditProfileActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                // Update SharedPreferences
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString(PREF_USERNAME, newUsername);
+                                editor.putString(PREF_BIO, newBio);
+                                editor.apply();
+
                                 Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(EditProfileActivity.this, ProfileActivity.class));
                                 finish(); // Close the activity after successful update
