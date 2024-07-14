@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,12 +20,6 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewUsername, textViewEmail, textViewBio, settingsTextView;
     private ImageView imageViewProfileImage;
     private SharedPreferences loginSharedPreferences, detailsSharedPreferences;
-
-    private static final String PREFS_NAME = "ProfilePrefs";
-    private static final String PREF_PROFILE_IMAGE = "profileImage";
-    private static final String PREF_USERNAME = "username";
-    private static final String PREF_BIO = "bio";
-    private static final String PREF_EMAIL = "email";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,12 +80,9 @@ public class ProfileActivity extends AppCompatActivity {
         editor.putBoolean("isLoggedIn", false);
         editor.apply();
 
-        SharedPreferences detailsSharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences detailsSharedPreferences = getSharedPreferences("ProfilePrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor detailsEditor = detailsSharedPreferences.edit();
-        detailsEditor.putString(PREF_PROFILE_IMAGE, null);
-        detailsEditor.putString(PREF_USERNAME, null);
-        detailsEditor.putString(PREF_BIO, null);
-        detailsEditor.putString(PREF_EMAIL, null);
+        detailsEditor.clear();  // clear all saved profile details
         detailsEditor.apply();
 
         Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
@@ -100,60 +92,56 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void fetchUserDetails() {
-        SharedPreferences detailsSharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        detailsSharedPreferences = getSharedPreferences("ProfilePrefs", Context.MODE_PRIVATE);
 
-        String cachedProfileImage = detailsSharedPreferences.getString(PREF_PROFILE_IMAGE, null);
-        String cachedUsername = detailsSharedPreferences.getString(PREF_USERNAME, null);
-        String cachedBio = detailsSharedPreferences.getString(PREF_BIO, null);
-        String cachedEmail = detailsSharedPreferences.getString(PREF_EMAIL, null);
+        String username = detailsSharedPreferences.getString("username", null);
+        String email = detailsSharedPreferences.getString("email", null);
+        String bio = detailsSharedPreferences.getString("bio", null);
+        String profileImage = detailsSharedPreferences.getString("profileImage", null);
 
-        if (cachedProfileImage != null && cachedUsername != null && cachedBio != null && cachedEmail != null) {
-            // Use cached data
-            Glide.with(this).load(cachedProfileImage).into(imageViewProfileImage);
-            textViewUsername.setText(cachedUsername);
-            textViewEmail.setText(cachedEmail);
-            textViewBio.setText(cachedBio);
-            Log.d("FETCH_DATA", "CACHED");
+        if (username != null && email != null && bio != null && profileImage != null) {
+            setUserData(username, email, bio, profileImage);
+            Log.d("FETCH_DATA","CACHED");
         } else {
-            // Fetch from Firestore and cache it
             String uid = Utils.getUidFromSharedPreferences(ProfileActivity.this);
             if (uid != null) {
                 Utils.fetchUserDetailsFromFirestore(uid, new Utils.UserDetailsCallback() {
                     @Override
                     public void onCallback(String username, String email, String bio, String profileImage) {
                         if (username != null && email != null) {
-                            textViewUsername.setText(username);
-                            textViewEmail.setText(email);
-                            textViewBio.setText(bio);
-
-                            SharedPreferences.Editor editor = detailsSharedPreferences.edit();
-                            editor.putString(PREF_PROFILE_IMAGE, profileImage);
-                            editor.putString(PREF_USERNAME, username);
-                            editor.putString(PREF_BIO, bio);
-                            editor.putString(PREF_EMAIL, email);
-                            editor.apply();
-
-                            Log.d("FETCH_DATA", "FIRESTORE");
+                            saveUserDetailsToPrefs(username, email, bio, profileImage);
+                            setUserData(username, email, bio, profileImage);
+                            Log.d("FETCH_DATA","FIRESTORE");
                         } else {
                             textViewUsername.setText("Username not found");
                             textViewEmail.setText("Email not found");
                             textViewBio.setText("Bio not found");
                         }
-                        if (profileImage != null) {
-                            Glide.with(ProfileActivity.this)
-                                    .load(profileImage)
-                                    .placeholder(R.drawable.profile) // Add a placeholder image
-                                    .into(imageViewProfileImage);
-                        } else {
-                            imageViewProfileImage.setImageResource(R.drawable.profile); // Set placeholder if no URL found
-                        }
                     }
                 });
             } else {
-                textViewUsername.setText("Username not found");
-                textViewEmail.setText("Email not found");
-                textViewBio.setText("Bio not found");
+                textViewUsername.setText("Loading...");
+                textViewEmail.setText("Loading...");
             }
         }
+    }
+
+    private void saveUserDetailsToPrefs(String username, String email, String bio, String profileImage) {
+        SharedPreferences.Editor editor = detailsSharedPreferences.edit();
+        editor.putString("username", username);
+        editor.putString("email", email);
+        editor.putString("bio", bio);
+        editor.putString("profileImage", profileImage);
+        editor.apply();
+    }
+
+    private void setUserData(String username, String email, String bio, String profileImage) {
+        textViewUsername.setText(username);
+        textViewEmail.setText(email);
+        textViewBio.setText(bio);
+        Glide.with(ProfileActivity.this)
+                .load(profileImage)
+                .placeholder(R.drawable.profile)
+                .into(imageViewProfileImage);
     }
 }
