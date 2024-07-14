@@ -1,8 +1,10 @@
 package com.example.roomiechat;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -54,6 +56,7 @@ public class OptionsActivity extends AppCompatActivity {
     private FirestoreHelper firestoreHelper;
 
     private FloatingActionButton fabSearch;
+    private SharedPreferences detailsSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,32 +103,54 @@ public class OptionsActivity extends AppCompatActivity {
     }
 
     private void fetchProfileData() {
-        if (uidForProfile != null) {
-            DocumentReference userRef = db.collection("users").document(uidForProfile);
-            userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            String profileImageUrl = document.getString("profileImageUrl");
-                            if (profileImageUrl != null) {
-                                Glide.with(OptionsActivity.this)
-                                        .load(profileImageUrl)
-                                        .placeholder(R.drawable.profile) // Add a placeholder image
-                                        .into(imageViewProfile);
+        detailsSharedPreferences = getSharedPreferences("ProfilePrefs", Context.MODE_PRIVATE);
+
+        String profileImage = detailsSharedPreferences.getString("profileImage", null);
+
+        if (profileImage != null) {
+            setProfileImage(profileImage);
+            Log.d("FETCH_DATA", "CACHE_PROFILE_IMAGE");
+        } else {
+            if (uidForProfile != null) {
+                DocumentReference userRef = db.collection("users").document(uidForProfile);
+                userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                String profileImageUrl = document.getString("profileImageUrl");
+                                if (profileImageUrl != null) {
+                                    saveProfileImageToPrefs(profileImageUrl);
+                                    setProfileImage(profileImageUrl);
+
+                                    Log.d("FETCH_DATA", "FIRESTORE_PROFILE_IMAGE");
+                                } else {
+                                    imageViewProfile.setImageResource(R.drawable.profile); // Set placeholder if no URL found
+                                }
                             } else {
-                                imageViewProfile.setImageResource(R.drawable.profile); // Set placeholder if no URL found
+                                Toast.makeText(OptionsActivity.this, "No profile data found", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(OptionsActivity.this, "No profile data found", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(OptionsActivity.this, "Failed to fetch profile data", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(OptionsActivity.this, "Failed to fetch profile data", Toast.LENGTH_SHORT).show();
                     }
-                }
-            });
+                });
+            }
         }
+    }
+
+    private void saveProfileImageToPrefs(String profileImageUrl) {
+        SharedPreferences.Editor editor = detailsSharedPreferences.edit();
+        editor.putString("profileImage", profileImageUrl);
+        editor.apply();
+    }
+
+    private void setProfileImage(String profileImageUrl) {
+        Glide.with(OptionsActivity.this)
+                .load(profileImageUrl)
+                .placeholder(R.drawable.profile) // Add a placeholder image
+                .into(imageViewProfile);
     }
 
     private void showCreateRoomPopup() {
