@@ -86,14 +86,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         DocumentReference currentUserRef = db.collection("users").document(currentUserId);
         DocumentReference followedUserRef = db.collection("users").document(followedUserId);
 
-        // Add the followed user to the current user's friend list
         currentUserRef.update("friends." + followedUserId, true)
                 .addOnSuccessListener(aVoid -> {
-                    // Add the current user to the followed user's friend list
                     followedUserRef.update("friends." + currentUserId, true)
                             .addOnSuccessListener(aVoid1 -> {
                                 Log.d("FOLLOW_SUCCESS", "Successfully followed user: " + followedUserId);
-                                fetchCurrentUserFriends(); // Refresh the friend list
+                                fetchCurrentUserFriends();
                                 setFollowingState(holder);
                             })
                             .addOnFailureListener(e -> {
@@ -109,17 +107,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         DocumentReference currentUserRef = db.collection("users").document(currentUserId);
         DocumentReference followedUserRef = db.collection("users").document(followedUserId);
 
-        // Remove the followed user from the current user's friend list
         Map<String, Object> updates = new HashMap<>();
         updates.put("friends." + followedUserId, FieldValue.delete());
 
         currentUserRef.update(updates)
                 .addOnSuccessListener(aVoid -> {
-                    // Remove the current user from the followed user's friend list
                     followedUserRef.update("friends." + currentUserId, FieldValue.delete())
                             .addOnSuccessListener(aVoid1 -> {
                                 Log.d("UNFOLLOW_SUCCESS", "Successfully unfollowed user: " + followedUserId);
-                                fetchCurrentUserFriends(); // Refresh the friend list
+                                fetchCurrentUserFriends();
                                 setUnfollowingState(holder);
                             })
                             .addOnFailureListener(e -> {
