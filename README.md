@@ -4,7 +4,7 @@ RoomieChat is a simple chat room application built using Android, Firebase, and 
 
 <div align='center'>
   <br>
-  <img src="https://github.com/user-attachments/assets/f0d593e0-190f-45d7-bdda-7cdcf8d954ad" alt="RoomiChatLogo" width="300">
+  <img src="https://github.com/user-attachments/assets/631a2b9f-7076-41ce-8c08-fbf0f7fe0986" alt="RoomiChatLogo" width="400">
   <br>
 </div>
 ## Features
