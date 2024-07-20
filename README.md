@@ -2,6 +2,11 @@
 
 RoomieChat is a simple chat room application built using Android, Firebase, and Java. It allows users to join chat rooms, send and receive messages in real-time, and manage their chat room participation.
 
+<div align='center'>
+  <br>
+  <img src="https://github.com/user-attachments/assets/f0d593e0-190f-45d7-bdda-7cdcf8d954ad" alt="RoomiChatLogo" width="300">
+  <br>
+</div>
 ## Features
 
 - **Real-time Messaging**: Send and receive messages instantly using Firebase Firestore.
