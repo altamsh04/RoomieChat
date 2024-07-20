@@ -83,12 +83,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     private void followUser(String currentUserId, String followedUserId, UserViewHolder holder) {
-        DocumentReference userRef = db.collection("users").document(currentUserId);
-        userRef.update("friends." + followedUserId, true)
+        DocumentReference currentUserRef = db.collection("users").document(currentUserId);
+        DocumentReference followedUserRef = db.collection("users").document(followedUserId);
+
+        // Add the followed user to the current user's friend list
+        currentUserRef.update("friends." + followedUserId, true)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("FOLLOW_SUCCESS", "Successfully followed user: " + followedUserId);
-                    fetchCurrentUserFriends(); // Refresh the friend list
-                    setFollowingState(holder);
+                    // Add the current user to the followed user's friend list
+                    followedUserRef.update("friends." + currentUserId, true)
+                            .addOnSuccessListener(aVoid1 -> {
+                                Log.d("FOLLOW_SUCCESS", "Successfully followed user: " + followedUserId);
+                                fetchCurrentUserFriends(); // Refresh the friend list
+                                setFollowingState(holder);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.d("FOLLOW_ERROR", "Error adding current user to followed user's friend list: " + e.getMessage());
+                            });
                 })
                 .addOnFailureListener(e -> {
                     Log.d("FOLLOW_ERROR", "Error following user: " + followedUserId + ", " + e.getMessage());
@@ -96,21 +106,30 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     private void unfollowUser(String currentUserId, String followedUserId, UserViewHolder holder) {
-        DocumentReference userRef = db.collection("users").document(currentUserId);
+        DocumentReference currentUserRef = db.collection("users").document(currentUserId);
+        DocumentReference followedUserRef = db.collection("users").document(followedUserId);
+
+        // Remove the followed user from the current user's friend list
         Map<String, Object> updates = new HashMap<>();
         updates.put("friends." + followedUserId, FieldValue.delete());
 
-        userRef.update(updates)
+        currentUserRef.update(updates)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("UNFOLLOW_SUCCESS", "Successfully unfollowed user: " + followedUserId);
-                    fetchCurrentUserFriends(); // Refresh the friend list
-                    setUnfollowingState(holder);
+                    // Remove the current user from the followed user's friend list
+                    followedUserRef.update("friends." + currentUserId, FieldValue.delete())
+                            .addOnSuccessListener(aVoid1 -> {
+                                Log.d("UNFOLLOW_SUCCESS", "Successfully unfollowed user: " + followedUserId);
+                                fetchCurrentUserFriends(); // Refresh the friend list
+                                setUnfollowingState(holder);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.d("UNFOLLOW_ERROR", "Error removing current user from followed user's friend list: " + e.getMessage());
+                            });
                 })
                 .addOnFailureListener(e -> {
                     Log.d("UNFOLLOW_ERROR", "Error unfollowing user: " + followedUserId + ", " + e.getMessage());
                 });
     }
-
     private void setFollowingState(UserViewHolder holder) {
         holder.followButton.setText("Unfollow");
     }
